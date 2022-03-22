@@ -29,7 +29,7 @@ def load_data(database_filepath):
     
     # load table to dataframe
     df = pd.read_sql_table('MessagesDisaster', con=engine) 
-    print(df.head())
+    #print(df.head())
     
     # Given value 2 in the related field are neglible so it could be error. Replacing 2 with 1 to consider it a valid response.
     df['related']=df['related'].map(lambda x: 1 if x == 2 else x)
@@ -65,7 +65,7 @@ def tokenize(text):
     lemmatizer = WordNetLemmatizer()
     clean_tokens = []
     for tok in words:
-        clean_tok = re.sub(r"^\s+|\s+$", "",lemmatizer.lemmatize(tok).lower().strip())
+        clean_tok = re.sub(r"^\s+|\s+$", "",lemmatizer.lemmatize(tok).lower())
         clean_tokens.append(clean_tok)
     return clean_tokens
 
@@ -81,8 +81,8 @@ def build_model():
         ('clf',  MultiOutputClassifier(RandomForestClassifier()))
     ])
     # create gridsearch object and return as final model pipeline
-    parameters = {'clf__estimator__max_depth': [10, 50, None],
-              'clf__estimator__min_samples_leaf':[2, 5, 10]}
+    parameters = {'clf__estimator__max_depth': [1, 5, None],
+              'clf__estimator__min_samples_leaf':[1, 2, 3]}
 
     # return model_pipeline
     cv = GridSearchCV(pipeline, parameters)
@@ -120,7 +120,7 @@ def main():
         model = build_model()
         
         print('Training model...')
-        model.fit(X_train, Y_train)
+        model.fit(X_train.values, Y_train)
         
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
