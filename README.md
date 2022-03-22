@@ -2,7 +2,7 @@
 
 ## Table of Contents
 - [Instructions:](#instructions-)
-- [The used libraries are:](#the-used-libraries-are-)
+- [Libraries:](#Libraries-)
 - [Project Motivation](#project-motivation)
 - [Project Descriptions](#project-descriptions)
 - [Files Descriptions](#files-descriptions)
@@ -58,7 +58,7 @@ The files structure is arranged as below:
 
 3. Go to http://0.0.0.0:3001/
 
-## The used libraries are:
+## Libraries:
 
 pandas
 re
