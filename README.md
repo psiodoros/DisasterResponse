@@ -61,17 +61,17 @@ The web app also contains some visualizations that describe the data.
 The files structure is arranged as below:
 
 - README.md: read me file
-	- \app
-		- run.py: flask file to run the app
+- \app
+	- run.py: flask file to run the app
 	- \templates
 		- master.html: main page of the web application 
 		- go.html: result web page
-	- \data
-		- disaster_categories.csv: categories dataset
-		- disaster_messages.csv: messages dataset
-		- DisasterResponse.db: disaster response database
-		- process_data.py: ETL process
-	- \models
+- \data
+	- disaster_categories.csv: categories dataset
+	- disaster_messages.csv: messages dataset
+	- DisasterResponse.db: disaster response database
+	- process_data.py: ETL process
+- \models
 		- train_classifier.py: classification code
 ## Instructions
 To execute the app follow the instructions:
