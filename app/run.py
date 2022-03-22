@@ -11,21 +11,36 @@ from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
 import joblib
+from pprint import pprint
+
 from sqlalchemy import create_engine
 
 
 app = Flask(__name__)
 
 def tokenize(text):
-    tokens = word_tokenize(text)
-    lemmatizer = WordNetLemmatizer()
+    """
+    Tokenizes text data
+    Args:
+    text str: Messages as text data
+    Returns:
+    # clean_tokens list: Processed text after normalizing, tokenizing and lemmatizing
+    words list: Processed text after normalizing, tokenizing and lemmatizing
+    """
+    # Normalize text
+    text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
+    
+    # tokenize text
+    words = word_tokenize(text)
+    
+    # remove stop words
+    stopwords_ = stopwords.words("english")
+    words = [word for word in words if word not in stopwords_]
+    
+    # extract root form of words
+    words = [WordNetLemmatizer().lemmatize(word, pos='v') for word in words]
 
-    clean_tokens = []
-    for tok in tokens:
-        clean_tok = lemmatizer.lemmatize(tok).lower().strip()
-        clean_tokens.append(clean_tok)
-
-    return clean_tokens
+    return words
 
 # load data
 engine = create_engine('sqlite:///../data/DisasterResponse.db')

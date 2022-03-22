@@ -5,7 +5,9 @@ from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
     """
-    Load Messages Data with Categories Function
+    Takes inputs two CSV files
+    Imports them as pandas dataframes
+    Merges them into a single dataframe
     
     Arguments:
         messages_filepath -> Path to the CSV file containing messages
@@ -29,8 +31,10 @@ def clean_data(df):
         df: dataframe after cleaning.
     '''
     categories = df.categories.str.split(';', expand = True)
-    row = categories.loc[0]
     
+    # select the first row of the categories dataframe
+    row = categories.loc[0]
+    # rename the columns of `categories`
     category_colnames = [x[:-2] for x in row]
     categories.columns = category_colnames
 
@@ -75,9 +79,9 @@ def main():
         print('Please provide the filepaths of the messages and categories '\
               'datasets as the first and second argument respectively, as '\
               'well as the filepath of the database to save the cleaned data '\
-              'to as the third argument. \n\nExample: python process_data.py '\
-              'disaster_messages.csv disaster_categories.csv '\
-              'DisasterResponse.db')
+              'to as the third argument. \n\nExample: python data\process_data.py '\
+              'data\disaster_messages.csv data\disaster_categories.csv '\
+              'data\DisasterResponse.db')
 
 
 if __name__ == '__main__':

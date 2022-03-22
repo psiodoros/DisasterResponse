@@ -18,8 +18,20 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split,  GridSearchCV 
 from sklearn.metrics import classification_report
 import pickle
+
+import warnings
+warnings.filterwarnings('ignore')
+
 def load_data(database_filepath):
-    """Load the filepath and return the data"""
+    """
+    Loads data from SQL Database
+    Args:
+    database_filepath: SQL database file
+    Returns:
+    X pandas_dataframe: Features dataframe
+    Y pandas_dataframe: Target dataframe
+    category_names list: Target labels 
+    """
     
     # create conn string
     name = 'sqlite:///{}'.format(database_filepath)
@@ -34,7 +46,7 @@ def load_data(database_filepath):
     # Given value 2 in the related field are neglible so it could be error. Replacing 2 with 1 to consider it a valid response.
     df['related']=df['related'].map(lambda x: 1 if x == 2 else x)
     
-    #Remove child alone as it has all zeros only
+    #Remove child alone as it has zeros only
     df = df.drop(['child_alone'],axis=1)
 
     # define features and label arrays
@@ -54,20 +66,20 @@ def tokenize(text):
     for url in detected_urls:
         text = text.replace(url, "urlplaceholder")
     
+    # Normalize text
+    text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
+    
     # tokenize text
-    tokens = word_tokenize(text)
+    words = word_tokenize(text)
     
-    # Remove stop words
-    stop = stopwords.words("english")
-    words = [t for t in tokens if t not in stop]
+    # remove stop words
+    stopwords_ = stopwords.words("english")
+    words = [word for word in words if word not in stopwords_]
     
-    # lemmatize 
-    lemmatizer = WordNetLemmatizer()
-    clean_tokens = []
-    for tok in words:
-        clean_tok = re.sub(r"^\s+|\s+$", "",lemmatizer.lemmatize(tok).lower())
-        clean_tokens.append(clean_tok)
-    return clean_tokens
+    # extract root form of words
+    words = [WordNetLemmatizer().lemmatize(word, pos='v') for word in words]
+
+    return words
 
 
 def build_model():
@@ -75,18 +87,21 @@ def build_model():
     
     # text processing and model pipeline
     # Pipeline: Random Forest Classifier
-    pipeline = Pipeline([
-        ('vect', CountVectorizer(tokenizer = tokenize)),
-        ('tfidf', TfidfTransformer()),
-        ('clf',  MultiOutputClassifier(RandomForestClassifier()))
-    ])
+    pipeline = Pipeline([('vect', CountVectorizer(tokenizer=tokenize)),
+                         ('tfidf', TfidfTransformer()),
+                         ('clf', MultiOutputClassifier(
+                            OneVsRestClassifier(LinearSVC())))])
     # create gridsearch object and return as final model pipeline
-    parameters = {'clf__estimator__max_depth': [1, 5, None],
-              'clf__estimator__min_samples_leaf':[1, 2, 3]}
-
+    parameters = {'vect__ngram_range': ((1, 1), (1, 2)),
+                  'vect__max_df': (0.75, 1.0)
+                  }
     # return model_pipeline
-    cv = GridSearchCV(pipeline, parameters)
-    return cv
+    model = GridSearchCV(estimator=pipeline,
+            param_grid=parameters,
+            verbose=3,
+            cv=3)
+    return model
+
 
 def evaluate_model(model, X_test, Y_test, category_names):
     """Print model results
@@ -98,10 +113,14 @@ def evaluate_model(model, X_test, Y_test, category_names):
     OUTPUT
     None
     """
-    # Get results and add them to a dataframe.
+    # Get predictions
     y_pred = model.predict(X_test)
-    print(classification_report(Y_test, y_pred, target_names=category_names))
-    results = pd.DataFrame(columns=['Category', 'f_score', 'precision', 'recall'])
+    # print classification report
+    print(classification_report(Y_test.values, y_pred, target_names=category_names))
+
+    # print accuracy score
+    print('Accuracy: {}'.format(np.mean(Y_test.values == y_pred)))
+
 
 
 def save_model(model, model_filepath):
@@ -120,7 +139,7 @@ def main():
         model = build_model()
         
         print('Training model...')
-        model.fit(X_train.values, Y_train)
+        model.fit(X_train, Y_train)
         
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
@@ -134,7 +153,9 @@ def main():
         print('Please provide the filepath of the disaster messages database '\
               'as the first argument and the filepath of the pickle file to '\
               'save the model to as the second argument. \n\nExample: python '\
-              'train_classifier.py ../data/DisasterResponse.db classifier.pkl')
+              'models\\train_classifier.py '\
+              'C:\\Users\\p.siontoros\\Documents\\PythonScripts\\Udacity\\DisasterResponse\\data\\DisasterResponse.db '\
+              'models\\model.pkl')
 
 
 if __name__ == '__main__':
