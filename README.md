@@ -1,14 +1,13 @@
 # Disaster Response Pipeline Project
 
 ## Table of Contents
-- [Instructions:](#instructions-)
-- [Libraries:](#Libraries-)
 - [Project Motivation](#project-motivation)
 - [Project Descriptions](#project-descriptions)
+- [Libraries](#Libraries)
 - [Files Descriptions](#files-descriptions)
 - [Instructions](#instructions)
 
-# Project Motivation
+## Project Motivation
 The goal of the project is to classify the disaster messages into categories. We used disaster data from Figure Eight to build a model for an API that classifies disaster messages. Through a web app, the user can input a new message and get classification results in several categories. The web app also display visualizations of the data.
 
 ## Project Descriptions
@@ -29,6 +28,20 @@ Exports the final model as a pickle file
 3. Flask Web App: the web app enables the user to enter a disaster message, and then view the categories of the message.
 The web app also contains some visualizations that describe the data.
 
+## Libraries
+pandas
+re
+sys
+json
+sklearn
+nltk
+sqlalchemy
+pickle
+Flask
+plotly
+sqlite3
+The code should run using Python versions 3.*.
+
 ## Files Descriptions
 The files structure is arranged as below:
 
@@ -45,6 +58,7 @@ The files structure is arranged as below:
 	- process_data.py: ETL process
 - \models
 		- train_classifier.py: classification code
+		- model.pkl: the saved model
 ## Instructions:
 1. Run the following commands in the project's root directory to set up your database and model.
 
@@ -57,33 +71,3 @@ The files structure is arranged as below:
     `python run.py`
 
 3. Go to http://0.0.0.0:3001/
-
-## Libraries:
-
-pandas
-re
-sys
-json
-sklearn
-nltk
-sqlalchemy
-pickle
-Flask
-plotly
-sqlite3
-The code should run using Python versions 3.*.
-
-
-## Instructions
-To execute the app follow the instructions:
-
-Run the following commands in the project's root directory to set up your database and model.
-
-To run ETL pipeline that cleans data and stores in database 
-python data/process_data.py data/disaster_messages.csv data/disaster_categories.csv data/DisasterResponse.db
-To run ML pipeline that trains and saves classifier  
-python models/train_classifier.py data/DisasterResponse.db models/classifier.pkl
-To run your web app. 
-python app/run.py
-
-Go to http://0.0.0.0:3001/
