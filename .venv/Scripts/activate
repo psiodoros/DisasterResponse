@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\p.siontoros\Documents\Python Scripts\Udacity\DisasterResponse\.venv"
+VIRTUAL_ENV="C:\Users\p.siontoros\Documents\PythonScripts\Udacity\DisasterResponse\.venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
