@@ -13,6 +13,7 @@ from nltk.stem import WordNetLemmatizer
 
 from sklearn.pipeline import Pipeline 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split,  GridSearchCV 
