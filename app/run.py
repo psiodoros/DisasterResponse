@@ -6,7 +6,8 @@ import pandas as pd
 import numpy as np
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
-
+from nltk.corpus import stopwords
+import re
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
@@ -34,8 +35,8 @@ def tokenize(text):
     words = word_tokenize(text)
     
     # remove stop words
-    stopwords_ = stopwords.words("english")
-    words = [word for word in words if word not in stopwords_]
+    stop_words = stopwords.words("english")
+    words = [word for word in words if word not in stop_words]
     
     # extract root form of words
     words = [WordNetLemmatizer().lemmatize(word, pos='v') for word in words]
@@ -43,65 +44,32 @@ def tokenize(text):
     return words
 
 # load data
-engine = create_engine('sqlite:///../data/DisasterResponse.db')
+engine = create_engine('sqlite:///data/DisasterResponse.db')
 df = pd.read_sql_table('MessagesDisaster', engine)
 
 # load model
-model = joblib.load("../models/model.pkl")
+model = joblib.load("models/model.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
 @app.route('/')
 @app.route('/index')
 def index():
-    
     # extract data needed for visuals
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
-    
-    # proportion based on
-    cat_p = df[df.columns[4:]].sum() / len(df)
 
-    # categories
-    # largest bar will be
-    cat_p = cat_p.sort_values(ascending=False)
+    label_counts = df.iloc[:, 4:].sum()
+    label_names = list(label_counts.index)
 
-    # on left
-    # category names
-    cats = list(cat_p.index)
-
-    # will contain all
-    words_with_repetition = []
-
-    # words words with
-    # repetition
-    for text in df['message'].values:
-        tokenized_ = tokenize(text)
-        words_with_repetition.extend(tokenized_)
-
-    word_count_dict = Counter(words_with_repetition)  # dictionary
-
-    # containing word
-    # count for all words
-    sorted_word_count_dict = dict(sorted(word_count_dict.items(),
-                                         key=operator.itemgetter(1),
-                                         reverse=True))  # sort dictionary by\
-    # values
-    top, top_10 = 0, {}
-
-    for k, v in sorted_word_count_dict.items():
-        top_10[k] = v
-        top += 1
-        if top == 10:
-            break
-    words = list(top_10.keys())
-    pprint(words)
-    count_props = 100 * np.array(list(top_10.values())) / df.shape[0]
-    
+    categories = df.iloc[:,4:]
+    avg_categories = categories.mean().sort_values(ascending=False)[1:11]
+    cat_names = list(avg_categories.index)
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
-    figures = [
+
+    graphs = [
         {
             'data': [
                 Bar(
@@ -123,51 +91,48 @@ def index():
         {
             'data': [
                 Bar(
-                    x=cats,
-                    y=cat_p
+                    x=label_names,
+                    y=label_counts,
                 )
             ],
 
             'layout': {
-                'title': 'Proportion of Messages <br> by Category',
+
+                'title': 'Distribution of Message Categories',
                 'yaxis': {
-                    'title': "Proportion",
-                    'automargin': True
+                    'title': "Count"
                 },
                 'xaxis': {
                     'title': "Category",
-                    'tickangle': -40,
-                    'automargin': True
-                }
+                    'categoryorder': 'array',
+                    'categoryarray': [x for _, x in sorted(zip(label_counts, label_names))]
+                },
             }
         },
         {
-            'data': [
-                Bar(
-                    x=words,
-                    y=count_props
-                )
-            ],
+                'data': [
+                    Bar(
+                        x= cat_names,
+                        y= avg_categories
+                    )
+                ],
 
-            'layout': {
-                'title': 'Frequency of top 10 words <br> as percentage',
-                'yaxis': {
-                    'title': 'Occurrence<br>(Out of 100)',
-                    'automargin': True
-                },
-                'xaxis': {
-                    'title': 'Top 10 words',
-                    'automargin': True
+                'layout': {
+                    'title': 'Top Categories',
+                    'yaxis': {
+                        'title': 'Percent'
+                    },
+                    'xaxis': {
+                        'title': 'Category'
+                    }
                 }
-            }
-        }
+        },
     ]
-    
-    
+
     # encode plotly graphs in JSON
     ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
     graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
-    
+
     # render web page with plotly graphs
     return render_template('master.html', ids=ids, graphJSON=graphJSON)
 
@@ -176,13 +141,13 @@ def index():
 @app.route('/go')
 def go():
     # save user input in query
-    query = request.args.get('query', '') 
+    query = request.args.get('query', '')
 
     # use model to predict classification for query
     classification_labels = model.predict([query])[0]
     classification_results = dict(zip(df.columns[4:], classification_labels))
 
-    # This will render the go.html Please see that file. 
+    # This will render the go.html Please see that file.
     return render_template(
         'go.html',
         query=query,
@@ -195,4 +160,5 @@ def main():
 
 
 if __name__ == '__main__':
+    main()
     main()
