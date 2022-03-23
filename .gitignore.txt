@@ -1,11 +1,11 @@
-venv/*
-.venv/*
+venv/**
+.venv/**
 
 # vscode settings
-.vscode/*
-app/.vscode/*
+.vscode/**
+app/.vscode/**
 # ipynb checkpoints
-.ipynb_checkpoints/*
+.ipynb_checkpoints/**
 
 # helper notebooks
 *.ipynb
