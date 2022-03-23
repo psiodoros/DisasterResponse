@@ -29,17 +29,17 @@ Exports the final model as a pickle file
 The web app also contains some visualizations that describe the data.
 
 ## Libraries
-pandas
-re
-sys
-json
-sklearn
-nltk
-sqlalchemy
-pickle
-Flask
-plotly
-sqlite3
+pandas,
+re,
+sys,
+json,
+sklearn,
+nltk,
+sqlalchemy,
+pickle,
+Flask,
+plotly,
+sqlite3,
 The code should run using Python versions 3.*.
 
 ## Files Descriptions
